@@ -108,3 +108,27 @@ class Gitpider(scrapy.Spider):
         else:
             pass
         yield repo_item
+        
+    def parse_issues(self, response):
+        issues = json.loads(response.text)
+        for issue in issues:
+            issue_item = ISSUE()
+            issue_item['ISSUEID'] = issue['id']
+            issue_item['IssuePublisherID'] = issue['user']['login']
+            issue_item['OwnerGithubID'] = issue['repository']['owner']['login']
+            issue_item['RepoURL'] = issue['repository_url']
+            issue_item['IssueDate'] = issue['created_at']
+            issue_item['Title'] = issue['title']
+            yield issue_item
+
+    def parse_pulls(self, response):
+        pulls = json.loads(response.text)
+        for pr in pulls:
+            pr_item = PR()
+            pr_item['PRID'] = pr['id']
+            pr_item['RequesterID'] = pr['user']['login']
+            pr_item['OwnerGithubID'] = pr['head']['repo']['owner']['login']
+            pr_item['RepoURL'] = pr['url']
+            pr_item['PRDate'] = pr['created_at']
+            pr_item['Title'] = pr['title']
+            yield pr_item
